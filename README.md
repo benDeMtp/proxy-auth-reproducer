@@ -17,7 +17,7 @@ Two tests are run (see CountriesServiceTest)
 
 * callApiWithJavaApiShouldReturnStatusCode200 call the java API HttpUrlConnection
 
-This two test must be OK
+These two tests must be OK
 
 #### Step two (use a proxy)
 First run a proxy with authentication.
@@ -41,6 +41,6 @@ mvn verify -Pproxy
 
 * callApiWithJavaApiShouldReturnStatusCode200 -> OK
 
-To make seconds test OK we used Authenticator class to setup  a PasswordAuthentication.
-Resteasy doesn’t use this PasswordAuthentication and there is no known way to specify a user and a password.
+To make second test success, we used Authenticator class to setup  a PasswordAuthentication.
+Resteasy does not use this PasswordAuthentication and there is no known way to specify a user and a password.
 
