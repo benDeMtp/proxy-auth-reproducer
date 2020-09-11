@@ -124,5 +124,20 @@
         <quarkus.package.type>native</quarkus.package.type>
       </properties>
     </profile>
+    <profile>
+      <id>proxy</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>3.0.0-M4</version>
+            <configuration>
+              <argLine>-Djdk.http.auth.tunneling.disabledSchemes="" -Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=3128 -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=3128 -Dhttps.proxyUser=test -Dhttp.proxyUser=test -Dhttp.proxyPassword=test -Dhttps.proxyPassword=test</argLine>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>

@@ -1,30 +1,46 @@
 # proxy-auth-reproducer project
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+This project is a reproducer to proof that proxy authentication doesn't work quarkus-rest-client
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
-## Running the application in dev mode
+This project consists of a simple service ( com.kawamind.CountriesService ) that call the same endpoint used in the official Quarkus documentation.
 
-You can run your application in dev mode that enables live coding using:
+### Steps to reproduce :
+#### Step one ( everything is fine)
+Run 
 ```
-./mvnw quarkus:dev
+mvn verify
 ```
+Two tests are run (see CountriesServiceTest)
 
-## Packaging and running the application
+* getByNameShouldReturnACountry call the CountriesService
 
-The application can be packaged using `./mvnw package`.
-It produces the `proxy-auth-reproducer-1.0.0-SNAPSHOT-runner.jar` file in the `/target` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/lib` directory.
+* callApiWithJavaApiShouldReturnStatusCode200 call the java API HttpUrlConnection
 
-The application is now runnable using `java -jar target/proxy-auth-reproducer-1.0.0-SNAPSHOT-runner.jar`.
+This two test must be OK
 
-## Creating a native executable
+#### Step two (use a proxy)
+First run a proxy with authentication.
+We will use a docker image available on DockerHub
+```
+docker run --name squid_proxy -d \                                                                                                                                                                                                                     
+  --restart=always \
+  --publish 3128:3128 -p 2222:22 \
+  -e SQUID_USER=test \
+  -e SQUID_PASS=test \
+  --volume /var/spool/squid \
+thelebster/docker-squid-simple-proxy
+```
+Then we can restart the tests with proxy profile
 
-You can create a native executable using: `./mvnw package -Pnative`.
+```
+mvn verify -Pproxy
+``` 
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: `./mvnw package -Pnative -Dquarkus.native.container-build=true`.
+* getByNameShouldReturnACountry -> KO with 407
 
-You can then execute your native executable with: `./target/proxy-auth-reproducer-1.0.0-SNAPSHOT-runner`
+* callApiWithJavaApiShouldReturnStatusCode200 -> OK
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/building-native-image.
+To make seconds test OK we used Authenticator class to setup  a PasswordAuthentication.
+Resteasy doesn’t use this PasswordAuthentication and there is no known way to specify a user and a password.
+
